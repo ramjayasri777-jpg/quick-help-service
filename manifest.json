@@ -1,0 +1,17 @@
+{
+  "name": "Quick Help",
+  "short_name": "Quick Help",
+  "description": "Find trusted service professionals near you",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7ff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
