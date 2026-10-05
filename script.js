@@ -82,17 +82,27 @@ const providers = [
 ];
 
 
+/* =========================
+   SHOW PROVIDERS
+========================= */
+
 function showProviders(service) {
 
-  const providerContainer = document.getElementById("providers");
-  const serviceTitle = document.getElementById("serviceTitle");
-  const providerCount = document.getElementById("providerCount");
+  const providerContainer =
+    document.getElementById("providers");
+
+  const serviceTitle =
+    document.getElementById("serviceTitle");
+
+  const providerCount =
+    document.getElementById("providerCount");
 
   const filteredProviders = providers.filter(
     provider => provider.service === service
   );
 
   serviceTitle.textContent = service + "s";
+
   providerCount.textContent =
     filteredProviders.length + " professionals";
 
@@ -117,6 +127,7 @@ function showProviders(service) {
         </div>
 
         <div class="provider-info">
+
           <h3>${provider.name}</h3>
 
           <div class="service-name">
@@ -126,6 +137,7 @@ function showProviders(service) {
           <div class="rating">
             ⭐ ${provider.rating}
           </div>
+
         </div>
 
       </div>
@@ -160,3 +172,392 @@ function showProviders(service) {
 
   });
 }
+
+
+/* =========================
+   LOGIN MODAL
+========================= */
+
+function openLogin() {
+
+  const loginModal =
+    document.getElementById("loginModal");
+
+  const registerModal =
+    document.getElementById("registerModal");
+
+  registerModal.classList.remove("active");
+
+  loginModal.classList.add("active");
+
+}
+
+
+/* =========================
+   CLOSE LOGIN
+========================= */
+
+function closeLogin() {
+
+  const loginModal =
+    document.getElementById("loginModal");
+
+  loginModal.classList.remove("active");
+
+}
+
+
+/* =========================
+   OPEN REGISTER
+========================= */
+
+function openRegister() {
+
+  const loginModal =
+    document.getElementById("loginModal");
+
+  const registerModal =
+    document.getElementById("registerModal");
+
+  loginModal.classList.remove("active");
+
+  registerModal.classList.add("active");
+
+}
+
+
+/* =========================
+   CLOSE REGISTER
+========================= */
+
+function closeRegister() {
+
+  const registerModal =
+    document.getElementById("registerModal");
+
+  registerModal.classList.remove("active");
+
+}
+
+
+/* =========================
+   REGISTER ACCOUNT
+========================= */
+
+function handleRegister(event) {
+
+  event.preventDefault();
+
+  const name =
+    document.getElementById("userName").value.trim();
+
+  const mobile =
+    document.getElementById("userMobile").value.trim();
+
+  const email =
+    document.getElementById("userEmail").value.trim();
+
+  const password =
+    document.getElementById("userPassword").value;
+
+  const location =
+    document.getElementById("userLocation").value.trim();
+
+  const workType =
+    document.getElementById("workType").value;
+
+  const experience =
+    document.getElementById("experience").value;
+
+  const skills =
+    document.getElementById("skills").value.trim();
+
+  const workLocation =
+    document.getElementById("workLocation").value.trim();
+
+  const availableTime =
+    document.getElementById("availableTime").value;
+
+
+  /* Check existing account */
+
+  const existingUser =
+    localStorage.getItem("quickHelpUser");
+
+  if (existingUser) {
+
+    const oldUser =
+      JSON.parse(existingUser);
+
+    if (oldUser.mobile === mobile) {
+
+      alert(
+        "An account with this mobile number already exists. Please login."
+      );
+
+      openLogin();
+
+      return;
+    }
+  }
+
+
+  /* Create user */
+
+  const user = {
+
+    name: name,
+
+    mobile: mobile,
+
+    email: email,
+
+    password: password,
+
+    location: location,
+
+    workType: workType,
+
+    experience: experience,
+
+    skills: skills,
+
+    workLocation: workLocation,
+
+    availableTime: availableTime,
+
+    createdAt: new Date().toISOString()
+
+  };
+
+
+  /* Save account */
+
+  localStorage.setItem(
+    "quickHelpUser",
+    JSON.stringify(user)
+  );
+
+
+  /* Save login session */
+
+  localStorage.setItem(
+    "quickHelpLoggedIn",
+    "true"
+  );
+
+
+  closeRegister();
+
+
+  document.getElementById("registerForm").reset();
+
+
+  alert(
+    "Account created successfully! Welcome to Quick Help, " +
+    name +
+    " 🎉"
+  );
+
+
+  updateLoginButton();
+
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+function handleLogin(event) {
+
+  event.preventDefault();
+
+  const mobile =
+    document.getElementById("loginMobile").value.trim();
+
+  const password =
+    document.getElementById("loginPassword").value;
+
+
+  const savedUser =
+    localStorage.getItem("quickHelpUser");
+
+
+  if (!savedUser) {
+
+    alert(
+      "No account found. Please create a new account first."
+    );
+
+    openRegister();
+
+    return;
+  }
+
+
+  const user =
+    JSON.parse(savedUser);
+
+
+  if (
+    user.mobile === mobile &&
+    user.password === password
+  ) {
+
+    localStorage.setItem(
+      "quickHelpLoggedIn",
+      "true"
+    );
+
+
+    closeLogin();
+
+
+    document.getElementById("loginForm").reset();
+
+
+    alert(
+      "Login successful! Welcome back, " +
+      user.name +
+      " 👋"
+    );
+
+
+    updateLoginButton();
+
+  } else {
+
+    alert(
+      "Incorrect mobile number or password."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   UPDATE LOGIN BUTTON
+========================= */
+
+function updateLoginButton() {
+
+  const loginButton =
+    document.querySelector(".login-btn");
+
+  const savedUser =
+    localStorage.getItem("quickHelpUser");
+
+  const loggedIn =
+    localStorage.getItem("quickHelpLoggedIn");
+
+
+  if (
+    loginButton &&
+    savedUser &&
+    loggedIn === "true"
+  ) {
+
+    const user =
+      JSON.parse(savedUser);
+
+    loginButton.textContent =
+      "👤 " + user.name;
+
+  } else if (loginButton) {
+
+    loginButton.textContent =
+      "👤 Login / Register";
+
+  }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logoutUser() {
+
+  localStorage.removeItem(
+    "quickHelpLoggedIn"
+  );
+
+  updateLoginButton();
+
+  alert("You have been logged out.");
+
+}
+
+
+/* =========================
+   CLOSE MODALS
+   WHEN CLICKING OUTSIDE
+========================= */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    const loginModal =
+      document.getElementById("loginModal");
+
+    const registerModal =
+      document.getElementById("registerModal");
+
+
+    if (
+      event.target === loginModal
+    ) {
+
+      closeLogin();
+
+    }
+
+
+    if (
+      event.target === registerModal
+    ) {
+
+      closeRegister();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   ESC KEY CLOSE
+========================= */
+
+document.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Escape") {
+
+      closeLogin();
+
+      closeRegister();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   PAGE LOAD
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    updateLoginButton();
+
+  }
+);
