@@ -1878,3 +1878,828 @@ document.addEventListener(
 
   }
 );
+/* =========================================================
+   QUICK HELP - BOOKING SYSTEM
+========================================================= */
+
+let selectedProvider = null;
+
+
+/* =========================
+   CREATE BOOKING UI
+========================= */
+
+function openBooking(provider) {
+
+  const loggedIn =
+    localStorage.getItem("quickHelpLoggedIn") === "true";
+
+  if (!loggedIn) {
+    alert("Please login first to book a service.");
+    openLogin();
+    return;
+  }
+
+  selectedProvider = provider;
+
+  let modal = document.getElementById("bookingModal");
+
+  if (!modal) {
+
+    modal = document.createElement("div");
+
+    modal.id = "bookingModal";
+    modal.className = "app-modal";
+
+    modal.innerHTML = `
+      <div class="booking-box">
+
+        <button
+          class="modal-close"
+          onclick="closeBooking()">
+          ✕
+        </button>
+
+        <div class="booking-icon">
+          📅
+        </div>
+
+        <h2>Book Service</h2>
+
+        <p class="booking-provider">
+          <strong id="bookingProviderName"></strong>
+          <br>
+          <span id="bookingProviderService"></span>
+        </p>
+
+        <div class="input-group">
+          <label>📅 Booking Date</label>
+          <input
+            type="date"
+            id="bookingDate"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>⏰ Preferred Time</label>
+
+          <select id="bookingTime" required>
+
+            <option value="">
+              Select time
+            </option>
+
+            <option value="8:00 AM - 10:00 AM">
+              8:00 AM - 10:00 AM
+            </option>
+
+            <option value="10:00 AM - 12:00 PM">
+              10:00 AM - 12:00 PM
+            </option>
+
+            <option value="12:00 PM - 2:00 PM">
+              12:00 PM - 2:00 PM
+            </option>
+
+            <option value="2:00 PM - 4:00 PM">
+              2:00 PM - 4:00 PM
+            </option>
+
+            <option value="4:00 PM - 6:00 PM">
+              4:00 PM - 6:00 PM
+            </option>
+
+            <option value="6:00 PM - 8:00 PM">
+              6:00 PM - 8:00 PM
+            </option>
+
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>📍 Service Address</label>
+
+          <textarea
+            id="bookingAddress"
+            rows="3"
+            placeholder="Enter where the service is needed"
+            required
+          ></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>📝 Problem Description</label>
+
+          <textarea
+            id="bookingProblem"
+            rows="3"
+            placeholder="Tell us about the problem"
+          ></textarea>
+        </div>
+
+        <button
+          class="main-login-btn"
+          onclick="confirmBooking()">
+
+          ✅ Confirm Booking
+
+        </button>
+
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById("bookingProviderName").textContent =
+    provider.name;
+
+  document.getElementById("bookingProviderService").textContent =
+    provider.service;
+
+  const dateInput =
+    document.getElementById("bookingDate");
+
+  const today =
+    new Date().toISOString().split("T")[0];
+
+  dateInput.min = today;
+  dateInput.value = today;
+
+  document.getElementById("bookingTime").value = "";
+  document.getElementById("bookingAddress").value = "";
+  document.getElementById("bookingProblem").value = "";
+
+  modal.classList.add("active");
+}
+
+
+/* =========================
+   CLOSE BOOKING
+========================= */
+
+function closeBooking() {
+
+  const modal =
+    document.getElementById("bookingModal");
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================
+   CONFIRM BOOKING
+========================= */
+
+async function confirmBooking() {
+
+  const loggedUser =
+    JSON.parse(
+      localStorage.getItem("quickHelpUser") || "null"
+    );
+
+  if (!loggedUser) {
+
+    alert("Please login first.");
+
+    closeBooking();
+
+    openLogin();
+
+    return;
+  }
+
+  const date =
+    document.getElementById("bookingDate").value;
+
+  const time =
+    document.getElementById("bookingTime").value;
+
+  const address =
+    document.getElementById("bookingAddress").value.trim();
+
+  const problem =
+    document.getElementById("bookingProblem").value.trim();
+
+
+  if (!date || !time || !address) {
+
+    alert(
+      "Please select date, time and service address."
+    );
+
+    return;
+  }
+
+
+  try {
+
+    const { error } =
+      await supabaseClient
+        .from("bookings")
+        .insert({
+
+          user_id: loggedUser.id,
+
+          provider_user_id:
+            selectedProvider.userId || null,
+
+          provider_name:
+            selectedProvider.name,
+
+          provider_phone:
+            selectedProvider.phone || null,
+
+          service:
+            selectedProvider.service,
+
+          booking_date:
+            date,
+
+          booking_time:
+            time,
+
+          address:
+            address,
+
+          problem_description:
+            problem || null,
+
+          status:
+            "Pending"
+
+        });
+
+
+    if (error) {
+
+      console.error(
+        "Booking error:",
+        error
+      );
+
+      alert(
+        "Booking failed: " +
+        error.message
+      );
+
+      return;
+    }
+
+
+    closeBooking();
+
+    alert(
+      "🎉 Booking confirmed successfully!"
+    );
+
+    showMyBookings();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Something went wrong while booking."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   MY BOOKINGS
+========================= */
+
+async function showMyBookings() {
+
+  const loggedUser =
+    JSON.parse(
+      localStorage.getItem("quickHelpUser") || "null"
+    );
+
+  if (!loggedUser) {
+
+    alert("Please login to view your bookings.");
+
+    openLogin();
+
+    return;
+  }
+
+
+  let modal =
+    document.getElementById("myBookingsModal");
+
+
+  if (!modal) {
+
+    modal =
+      document.createElement("div");
+
+    modal.id =
+      "myBookingsModal";
+
+    modal.className =
+      "app-modal";
+
+    modal.innerHTML = `
+      <div class="bookings-box">
+
+        <button
+          class="modal-close"
+          onclick="closeMyBookings()">
+          ✕
+        </button>
+
+        <div class="booking-icon">
+          📋
+        </div>
+
+        <h2>My Bookings</h2>
+
+        <div id="myBookingsList">
+          Loading bookings...
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+  }
+
+
+  modal.classList.add("active");
+
+
+  const list =
+    document.getElementById("myBookingsList");
+
+
+  list.innerHTML =
+    "<p>Loading your bookings...</p>";
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("bookings")
+      .select("*")
+      .eq("user_id", loggedUser.id)
+      .order("created_at", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(error);
+
+    list.innerHTML =
+      "<p>Unable to load bookings.</p>";
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML = `
+      <div class="empty-bookings">
+        <div>📭</div>
+        <h3>No bookings yet</h3>
+        <p>Your service bookings will appear here.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach(booking => {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "booking-card";
+
+
+    const status =
+      booking.status || "Pending";
+
+
+    card.innerHTML = `
+
+      <div class="booking-card-top">
+
+        <div>
+
+          <h3>
+            ${escapeHtml(
+              booking.provider_name
+            )}
+          </h3>
+
+          <span>
+            ${escapeHtml(
+              booking.service
+            )}
+          </span>
+
+        </div>
+
+        <strong class="booking-status">
+          ${escapeHtml(status)}
+        </strong>
+
+      </div>
+
+
+      <div class="booking-details">
+
+        <p>
+          📅
+          <strong>Date:</strong>
+          ${escapeHtml(
+            booking.booking_date
+          )}
+        </p>
+
+        <p>
+          ⏰
+          <strong>Time:</strong>
+          ${escapeHtml(
+            booking.booking_time
+          )}
+        </p>
+
+        <p>
+          📍
+          <strong>Address:</strong>
+          ${escapeHtml(
+            booking.address
+          )}
+        </p>
+
+        ${
+          booking.problem_description
+            ? `
+              <p>
+                📝
+                <strong>Problem:</strong>
+                ${escapeHtml(
+                  booking.problem_description
+                )}
+              </p>
+            `
+            : ""
+        }
+
+      </div>
+
+      ${
+        status === "Pending"
+          ? `
+            <button
+              class="cancel-booking-btn"
+              onclick="cancelBooking(${booking.id})">
+
+              Cancel Booking
+
+            </button>
+          `
+          : ""
+      }
+
+    `;
+
+
+    list.appendChild(card);
+
+  });
+
+}
+
+
+/* =========================
+   CLOSE MY BOOKINGS
+========================= */
+
+function closeMyBookings() {
+
+  const modal =
+    document.getElementById(
+      "myBookingsModal"
+    );
+
+  if (modal) {
+
+    modal.classList.remove(
+      "active"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   CANCEL BOOKING
+========================= */
+
+async function cancelBooking(id) {
+
+  if (
+    !confirm(
+      "Are you sure you want to cancel this booking?"
+    )
+  ) {
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("bookings")
+      .update({
+        status: "Cancelled"
+      })
+      .eq("id", id);
+
+
+  if (error) {
+
+    alert(
+      "Unable to cancel booking."
+    );
+
+    console.error(error);
+
+    return;
+  }
+
+
+  alert(
+    "Booking cancelled successfully."
+  );
+
+
+  showMyBookings();
+
+}
+
+
+/* =========================================================
+   OVERRIDE PROVIDER RENDER
+   ADD BOOK NOW BUTTON
+========================================================= */
+
+function renderProviders(providerList) {
+
+  const providerContainer =
+    document.getElementById("providers");
+
+  const providerCount =
+    document.getElementById("providerCount");
+
+
+  if (providerCount) {
+
+    providerCount.textContent =
+      providerList.length +
+      " professionals";
+
+  }
+
+
+  if (!providerContainer) {
+    return;
+  }
+
+
+  providerContainer.innerHTML = "";
+
+
+  if (providerList.length === 0) {
+
+    providerContainer.innerHTML = `
+      <div class="provider-card">
+
+        <h3>No professionals found</h3>
+
+        <p>
+          No professionals available.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  providerList.forEach(provider => {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "provider-card";
+
+
+    const statusClass =
+      provider.status === "Available"
+        ? "available"
+        : "busy";
+
+
+    card.innerHTML = `
+
+      <div class="provider-top">
+
+        <div class="provider-avatar">
+          ${escapeHtml(
+            provider.icon ||
+            getServiceIcon(
+              provider.service
+            )
+          )}
+        </div>
+
+        <div class="provider-info">
+
+          <h3>
+            ${escapeHtml(
+              provider.name
+            )}
+          </h3>
+
+          <div class="service-name">
+            ${escapeHtml(
+              provider.service
+            )}
+          </div>
+
+          <div class="rating">
+            ⭐
+            ${escapeHtml(
+              provider.rating || "New"
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="details">
+
+        <div class="detail">
+          📍
+          <strong>Location:</strong>
+          ${escapeHtml(
+            provider.location || "Chennai"
+          )}
+        </div>
+
+        <div class="detail">
+          💼
+          <strong>Experience:</strong>
+          ${escapeHtml(
+            provider.experience || "-"
+          )}
+        </div>
+
+        ${
+          provider.skills
+            ? `
+              <div class="detail">
+                🛠️
+                <strong>Skills:</strong>
+                ${escapeHtml(
+                  provider.skills
+                )}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          provider.availableTime
+            ? `
+              <div class="detail">
+                🕒
+                <strong>Available:</strong>
+                ${escapeHtml(
+                  provider.availableTime
+                )}
+              </div>
+            `
+            : ""
+        }
+
+        <div class="detail ${statusClass}">
+          ●
+          ${escapeHtml(
+            provider.status ||
+            "Available"
+          )}
+        </div>
+
+      </div>
+
+
+      <div class="provider-actions">
+
+        <button
+          class="book-now-btn"
+          onclick='openBooking(${JSON.stringify(
+            provider
+          ).replace(/'/g, "&#039;")})'>
+
+          📅 Book Now
+
+        </button>
+
+
+        ${
+          provider.phone
+            ? `
+              <a
+                class="call-btn"
+                href="tel:${escapeHtml(
+                  provider.phone
+                )}">
+
+                📞 Call Now
+
+              </a>
+            `
+            : ""
+        }
+
+      </div>
+
+    `;
+
+
+    providerContainer.appendChild(card);
+
+  });
+
+}
+
+
+/* =========================================================
+   ADD MY BOOKINGS TO NAV
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const nav =
+      document.querySelector(
+        ".main-nav"
+      );
+
+
+    if (
+      nav &&
+      !document.getElementById(
+        "myBookingsNav"
+      )
+    ) {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.id =
+        "myBookingsNav";
+
+      button.className =
+        "nav-item";
+
+      button.innerHTML =
+        "📋 <span>My Bookings</span>";
+
+      button.onclick =
+        showMyBookings;
+
+      nav.appendChild(button);
+
+    }
+
+  }
+);
