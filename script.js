@@ -3422,3 +3422,460 @@ function renderProviders(providerList) {
   });
 
 }
+/* =========================================================
+   PROVIDER DASHBOARD
+========================================================= */
+
+async function openProviderDashboard() {
+
+  const loggedUser =
+    JSON.parse(
+      localStorage.getItem("quickHelpUser") || "null"
+    );
+
+  if (!loggedUser) {
+    alert("Please login first.");
+    openLogin();
+    return;
+  }
+
+  const { data: work, error: workError } =
+    await supabaseClient
+      .from("work_details")
+      .select("*")
+      .eq("User_id", loggedUser.id)
+      .maybeSingle();
+
+  if (workError || !work) {
+    alert("Provider profile not found.");
+    return;
+  }
+
+  let modal =
+    document.getElementById("providerDashboardModal");
+
+  if (!modal) {
+
+    modal = document.createElement("div");
+
+    modal.id = "providerDashboardModal";
+    modal.className = "app-modal";
+
+    modal.innerHTML = `
+      <div class="provider-dashboard-box">
+
+        <button
+          class="modal-close"
+          onclick="closeProviderDashboard()">
+          ✕
+        </button>
+
+        <div id="providerDashboardContent">
+          Loading...
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  modal.classList.add("active");
+
+  await loadProviderDashboard(loggedUser, work);
+}
+
+
+/* =========================
+   LOAD DASHBOARD
+========================= */
+
+async function loadProviderDashboard(user, work) {
+
+  const content =
+    document.getElementById(
+      "providerDashboardContent"
+    );
+
+  const { data: bookings, error } =
+    await supabaseClient
+      .from("bookings")
+      .select("*")
+      .eq("provider_user_id", user.id)
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+    console.error(error);
+    content.innerHTML =
+      "<p>Unable to load bookings.</p>";
+    return;
+  }
+
+  const list = bookings || [];
+
+  const pending =
+    list.filter(
+      b => b.status === "Pending"
+    ).length;
+
+  const confirmed =
+    list.filter(
+      b => b.status === "Confirmed"
+    ).length;
+
+  const completed =
+    list.filter(
+      b => b.status === "Completed"
+    ).length;
+
+
+  content.innerHTML = `
+
+    <div class="provider-dashboard-header">
+
+      <div class="dashboard-avatar">
+        👨‍🔧
+      </div>
+
+      <div>
+
+        <h2>
+          Provider Dashboard
+        </h2>
+
+        <p>
+          Welcome, ${escapeHtml(user.name)}
+        </p>
+
+        <span class="provider-service-badge">
+          ${escapeHtml(work.Work_type)}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="dashboard-stats">
+
+      <div class="dashboard-stat">
+        <strong>${pending}</strong>
+        <span>Pending</span>
+      </div>
+
+      <div class="dashboard-stat">
+        <strong>${confirmed}</strong>
+        <span>Confirmed</span>
+      </div>
+
+      <div class="dashboard-stat">
+        <strong>${completed}</strong>
+        <span>Completed</span>
+      </div>
+
+    </div>
+
+
+    <div class="dashboard-section">
+
+      <h3>📋 Customer Bookings</h3>
+
+      <div id="providerBookingsList">
+
+        ${
+          list.length === 0
+            ? `
+              <div class="dashboard-empty">
+                <div>📭</div>
+                <h4>No bookings yet</h4>
+                <p>
+                  New customer bookings
+                  will appear here.
+                </p>
+              </div>
+            `
+            : list.map(
+                booking =>
+                  providerBookingCard(
+                    booking
+                  )
+              ).join("")
+        }
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================
+   BOOKING CARD
+========================= */
+
+function providerBookingCard(booking) {
+
+  let actions = "";
+
+  if (booking.status === "Pending") {
+
+    actions = `
+
+      <div class="provider-booking-actions">
+
+        <button
+          class="accept-booking-btn"
+          onclick="updateBookingStatus(
+            ${booking.id},
+            'Confirmed'
+          )">
+
+          ✅ Accept
+
+        </button>
+
+        <button
+          class="reject-booking-btn"
+          onclick="updateBookingStatus(
+            ${booking.id},
+            'Rejected'
+          )">
+
+          ❌ Reject
+
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+  if (booking.status === "Confirmed") {
+
+    actions = `
+
+      <button
+        class="complete-booking-btn"
+        onclick="updateBookingStatus(
+          ${booking.id},
+          'Completed'
+        )">
+
+        ✅ Mark Service Completed
+
+      </button>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="provider-booking-card">
+
+      <div class="provider-booking-top">
+
+        <div>
+
+          <h4>
+            👤 ${escapeHtml(
+              booking.user_id
+                ? "Customer"
+                : "Customer"
+            )}
+          </h4>
+
+          <span>
+            ${escapeHtml(
+              booking.service
+            )}
+          </span>
+
+        </div>
+
+        <strong class="
+          dashboard-status
+          ${booking.status.toLowerCase()}
+        ">
+
+          ${escapeHtml(
+            booking.status
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="provider-booking-details">
+
+        <p>
+          📅
+          <strong>Date:</strong>
+          ${escapeHtml(
+            booking.booking_date
+          )}
+        </p>
+
+        <p>
+          ⏰
+          <strong>Time:</strong>
+          ${escapeHtml(
+            booking.booking_time
+          )}
+        </p>
+
+        <p>
+          📍
+          <strong>Address:</strong>
+          ${escapeHtml(
+            booking.address
+          )}
+        </p>
+
+        ${
+          booking.problem_description
+            ? `
+              <p>
+                📝
+                <strong>Problem:</strong>
+                ${escapeHtml(
+                  booking.problem_description
+                )}
+              </p>
+            `
+            : ""
+        }
+
+      </div>
+
+
+      ${actions}
+
+    </div>
+
+  `;
+}
+
+
+/* =========================
+   UPDATE STATUS
+========================= */
+
+async function updateBookingStatus(
+  bookingId,
+  newStatus
+) {
+
+  const message =
+    newStatus === "Confirmed"
+      ? "Accept this booking?"
+      : newStatus === "Rejected"
+      ? "Reject this booking?"
+      : "Mark this service as completed?";
+
+
+  if (!confirm(message)) {
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("bookings")
+      .update({
+        status: newStatus
+      })
+      .eq("id", bookingId);
+
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Unable to update booking status."
+    );
+
+    return;
+  }
+
+
+  alert(
+    newStatus === "Confirmed"
+      ? "✅ Booking accepted!"
+      : newStatus === "Rejected"
+      ? "❌ Booking rejected."
+      : "🎉 Service marked as completed!"
+  );
+
+
+  await openProviderDashboard();
+
+}
+
+
+/* =========================
+   CLOSE DASHBOARD
+========================= */
+
+function closeProviderDashboard() {
+
+  const modal =
+    document.getElementById(
+      "providerDashboardModal"
+    );
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================================================
+   ADD PROVIDER DASHBOARD TO ACCOUNT MENU
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const settings =
+      document.querySelector(
+        ".settings-content"
+      );
+
+    if (
+      settings &&
+      !document.getElementById(
+        "providerDashboardBtn"
+      )
+    ) {
+
+      const button =
+        document.createElement("button");
+
+      button.id =
+        "providerDashboardBtn";
+
+      button.className =
+        "settings-option";
+
+      button.innerHTML =
+        "👨‍🔧 Provider Dashboard";
+
+      button.onclick =
+        openProviderDashboard;
+
+      settings.prepend(button);
+
+    }
+
+  }
+);
