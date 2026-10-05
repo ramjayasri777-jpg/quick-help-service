@@ -1,0 +1,266 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f5f7ff;
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+/* Header */
+
+.header {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  text-align: center;
+  padding: 28px 20px;
+  border-radius: 0 0 25px 25px;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Main */
+
+main {
+  width: 92%;
+  max-width: 900px;
+  margin: auto;
+}
+
+.hero {
+  text-align: center;
+  padding: 30px 10px 20px;
+}
+
+.hero h1 {
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+.hero p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Services */
+
+.services {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 10px 0 30px;
+}
+
+.service-btn {
+  background: white;
+  border: none;
+  border-radius: 18px;
+  padding: 20px 12px;
+  cursor: pointer;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+  transition: 0.2s;
+  text-align: center;
+}
+
+.service-btn:hover {
+  transform: translateY(-3px);
+}
+
+.service-btn span {
+  display: block;
+  font-size: 35px;
+  margin-bottom: 8px;
+}
+
+.service-btn strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.service-btn small {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* Provider section */
+
+.provider-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-title h2 {
+  font-size: 20px;
+}
+
+#providerCount {
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* Provider cards */
+
+.providers {
+  display: grid;
+  gap: 15px;
+}
+
+.provider-card {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.provider-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.provider-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.provider-info {
+  flex: 1;
+}
+
+.provider-info h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.service-name {
+  color: #4f46e5;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.rating {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eeeeee;
+}
+
+.detail {
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.available {
+  color: #16a34a;
+  font-weight: bold;
+}
+
+.busy {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+/* Call button */
+
+.call-btn {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+  padding: 13px;
+  background: #16a34a;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.call-btn:hover {
+  background: #15803d;
+}
+
+/* Welcome card */
+
+.welcome-card {
+  background: white;
+  border-radius: 18px;
+  padding: 35px 20px;
+  text-align: center;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+}
+
+.welcome-icon {
+  font-size: 50px;
+  margin-bottom: 12px;
+}
+
+.welcome-card h3 {
+  margin-bottom: 8px;
+}
+
+.welcome-card p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Footer */
+
+footer {
+  text-align: center;
+  background: #111827;
+  color: white;
+  padding: 22px;
+  font-size: 12px;
+  line-height: 1.8;
+  margin-top: 30px;
+}
+
+/* Desktop */
+
+@media (min-width: 700px) {
+
+  .services {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .providers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+}
