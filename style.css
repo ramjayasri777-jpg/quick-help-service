@@ -1236,3 +1236,226 @@ footer {
   }
 
   }
+/* =========================================================
+   PROVIDER PROFILE + REVIEWS
+========================================================= */
+
+.provider-profile-box {
+  width: min(94%, 650px);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 24px;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+
+.provider-profile-header {
+  text-align: center;
+  padding: 10px 0 25px;
+}
+
+.large-provider-avatar {
+  width: 85px;
+  height: 85px;
+  margin: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  font-size: 42px;
+}
+
+.provider-profile-header h2 {
+  margin: 12px 0 5px;
+}
+
+.profile-service {
+  color: #666;
+}
+
+.profile-rating {
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.profile-info-grid > div {
+  padding: 15px;
+  border-radius: 15px;
+  background: #f8fafc;
+}
+
+.profile-info-grid span {
+  font-size: 22px;
+  display: block;
+}
+
+.profile-info-grid strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.profile-info-grid p {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.profile-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.profile-action-buttons > * {
+  flex: 1;
+}
+
+.profile-action-buttons .call-btn {
+  text-align: center;
+  padding: 12px;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.profile-view-btn {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  background: #f1f5f9;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reviews-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.reviews-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reviews-title h3 {
+  margin: 0;
+}
+
+.reviews-title span {
+  color: #777;
+  font-size: 13px;
+}
+
+.review-card {
+  margin-top: 12px;
+  padding: 15px;
+  border-radius: 15px;
+  background: #f8fafc;
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.review-card p {
+  margin: 10px 0 0;
+  color: #555;
+}
+
+.review-btn,
+.submit-review-btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  margin-top: 15px;
+  background: #4f46e5;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 25px 10px;
+}
+
+.no-reviews > div {
+  font-size: 35px;
+}
+
+.review-form {
+  text-align: center;
+  padding-top: 25px;
+}
+
+.review-form-icon {
+  font-size: 50px;
+}
+
+.review-form p {
+  color: #666;
+}
+
+.review-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+  padding: 13px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  resize: vertical;
+}
+
+.star-selector {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.star-selector button {
+  border: none;
+  background: transparent;
+  font-size: 38px;
+  color: #d1d5db;
+  cursor: pointer;
+}
+
+.star-selector button.selected {
+  color: #f59e0b;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-action-buttons {
+    flex-direction: column;
+  }
+
+  .provider-actions {
+    flex-direction: column;
+  }
+
+  .provider-profile-box {
+    padding: 20px;
+  }
+
+}
