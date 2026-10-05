@@ -1,3 +1,10 @@
+const SUPABASE_URL = "NEXT_PUBLIC_SUPABASE_URL=https://mkfmwmbiylvyixjlmcba.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_c7E2D-jjrLFzLwIB_sfahg_WROFByrn";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 const providers = [
   {
     name: "ishwarya",
