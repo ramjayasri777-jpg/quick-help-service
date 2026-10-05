@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Quick Help - Service Finder</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="logo">⚡ Quick Help</div>
+    <p>Find trusted service professionals near you</p>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <h1>What service do you need?</h1>
+      <p>Select a service and contact a professional directly.</p>
+    </section>
+
+    <section class="services">
+
+      <button class="service-btn" onclick="showProviders('Plumber')">
+        <span>🔧</span>
+        <strong>Plumber</strong>
+        <small>Pipe & water problems</small>
+      </button>
+
+      <button class="service-btn" onclick="showProviders('Electrician')">
+        <span>⚡</span>
+        <strong>Electrician</strong>
+        <small>Electrical problems</small>
+      </button>
+
+      <button class="service-btn" onclick="showProviders('Carpenter')">
+        <span>🪚</span>
+        <strong>Carpenter</strong>
+        <small>Furniture & wood work</small>
+      </button>
+
+      <button class="service-btn" onclick="showProviders('Painter')">
+        <span>🎨</span>
+        <strong>Painter</strong>
+        <small>Home & wall painting</small>
+      </button>
+
+    </section>
+
+    <section class="provider-section">
+
+      <div class="section-title">
+        <h2 id="serviceTitle">Available Professionals</h2>
+        <span id="providerCount"></span>
+      </div>
+
+      <div id="providers" class="providers">
+
+        <div class="welcome-card">
+          <div class="welcome-icon">👨‍🔧</div>
+          <h3>Choose a service</h3>
+          <p>
+            Select Plumber, Electrician, Carpenter or Painter
+            to view available professionals.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2026 Quick Help</p>
+    <p>Connect with service professionals easily</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
