@@ -14,8 +14,9 @@ const supabaseClient =
     SUPABASE_PUBLISHABLE_KEY
   );
 
+
 /* =========================================================
-   PROVIDERS
+   STATIC PROVIDERS
 ========================================================= */
 
 const providers = [
@@ -112,37 +113,55 @@ const providers = [
 
 
 /* =========================================================
-   SHOW PROVIDERS
+   SERVICE ICON
 ========================================================= */
 
-function showProviders(service) {
+function getServiceIcon(service) {
+
+  const icons = {
+    Plumber: "🔧",
+    Electrician: "⚡",
+    Carpenter: "🪚",
+    Painter: "🎨"
+  };
+
+  return icons[service] || "🛠️";
+}
+
+
+/* =========================================================
+   HTML SECURITY HELPER
+========================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   RENDER PROVIDERS
+========================================================= */
+
+function renderProviders(providerList) {
 
   const providerContainer =
     document.getElementById("providers");
-
-  const serviceTitle =
-    document.getElementById("serviceTitle");
 
   const providerCount =
     document.getElementById("providerCount");
 
 
-  const filteredProviders =
-    providers.filter(
-      provider => provider.service === service
-    );
-
-
-  if (serviceTitle) {
-    serviceTitle.textContent =
-      service + "s";
-  }
-
-
   if (providerCount) {
+
     providerCount.textContent =
-      filteredProviders.length +
-      " professionals";
+      providerList.length + " professionals";
+
   }
 
 
@@ -154,7 +173,20 @@ function showProviders(service) {
   providerContainer.innerHTML = "";
 
 
-  filteredProviders.forEach(provider => {
+  if (providerList.length === 0) {
+
+    providerContainer.innerHTML = `
+      <div class="provider-card">
+        <h3>No professionals found</h3>
+        <p>No registered provider found in this category.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  providerList.forEach(provider => {
 
     const card =
       document.createElement("div");
@@ -170,24 +202,61 @@ function showProviders(service) {
         : "busy";
 
 
+    const skillsHtml =
+      provider.skills
+        ? `
+          <div class="detail">
+            🛠️ <strong>Skills:</strong>
+            ${escapeHtml(provider.skills)}
+          </div>
+        `
+        : "";
+
+
+    const availableTimeHtml =
+      provider.availableTime
+        ? `
+          <div class="detail">
+            🕒 <strong>Available:</strong>
+            ${escapeHtml(provider.availableTime)}
+          </div>
+        `
+        : "";
+
+
+    const callButton =
+      provider.phone
+        ? `
+          <a
+            class="call-btn"
+            href="tel:${escapeHtml(provider.phone)}"
+          >
+            📞 Call Now
+          </a>
+        `
+        : "";
+
+
     card.innerHTML = `
 
       <div class="provider-top">
 
         <div class="provider-avatar">
-          ${provider.icon}
+          ${escapeHtml(provider.icon)}
         </div>
 
         <div class="provider-info">
 
-          <h3>${provider.name}</h3>
+          <h3>
+            ${escapeHtml(provider.name)}
+          </h3>
 
           <div class="service-name">
-            ${provider.service}
+            ${escapeHtml(provider.service)}
           </div>
 
           <div class="rating">
-            ⭐ ${provider.rating}
+            ⭐ ${escapeHtml(provider.rating)}
           </div>
 
         </div>
@@ -199,27 +268,25 @@ function showProviders(service) {
 
         <div class="detail">
           📍 <strong>Location:</strong>
-          ${provider.location}
+          ${escapeHtml(provider.location)}
         </div>
 
         <div class="detail">
           💼 <strong>Experience:</strong>
-          ${provider.experience}
+          ${escapeHtml(provider.experience)}
         </div>
 
+        ${skillsHtml}
+
+        ${availableTimeHtml}
+
         <div class="detail ${statusClass}">
-          ● ${provider.status}
+          ● ${escapeHtml(provider.status)}
         </div>
 
       </div>
 
-
-      <a
-        class="call-btn"
-        href="tel:${provider.phone}"
-      >
-        📞 Call Now
-      </a>
+      ${callButton}
 
     `;
 
@@ -227,6 +294,277 @@ function showProviders(service) {
     providerContainer.appendChild(card);
 
   });
+
+}
+
+
+/* =========================================================
+   SHOW PROVIDERS
+   LOAD STATIC + SUPABASE PROVIDERS
+========================================================= */
+
+async function showProviders(service) {
+
+  const providerContainer =
+    document.getElementById("providers");
+
+  const serviceTitle =
+    document.getElementById("serviceTitle");
+
+  const providerCount =
+    document.getElementById("providerCount");
+
+
+  if (serviceTitle) {
+
+    serviceTitle.textContent =
+      service + "s";
+
+  }
+
+
+  if (providerCount) {
+
+    providerCount.textContent =
+      "Loading professionals...";
+
+  }
+
+
+  if (providerContainer) {
+
+    providerContainer.innerHTML = `
+      <div class="provider-card">
+        <h3>Loading...</h3>
+        <p>Finding ${escapeHtml(service)} professionals...</p>
+      </div>
+    `;
+
+  }
+
+
+  try {
+
+    /* -------------------------------------------------------
+       GET ALL WORK DETAILS
+    ------------------------------------------------------- */
+
+    const {
+      data: workRows,
+      error: workFetchError
+    } = await supabaseClient
+      .from("work_details")
+      .select(
+        '"User_id", "Work_type", "Experience", "Skill", "Work_location", "Available time"'
+      );
+
+
+    if (workFetchError) {
+
+      throw workFetchError;
+
+    }
+
+
+    /* -------------------------------------------------------
+       FILTER SELECTED CATEGORY
+       CASE-INSENSITIVE
+    ------------------------------------------------------- */
+
+    const selectedService =
+      String(service)
+        .trim()
+        .toLowerCase();
+
+
+    const matchingWorkRows =
+      (workRows || []).filter(row => {
+
+        return String(row.Work_type || "")
+          .trim()
+          .toLowerCase() === selectedService;
+
+      });
+
+
+    /* -------------------------------------------------------
+       GET USER IDS
+    ------------------------------------------------------- */
+
+    const userIds = [
+      ...new Set(
+        matchingWorkRows
+          .map(row => row.User_id)
+          .filter(id => id !== null && id !== undefined)
+      )
+    ];
+
+
+    let registeredProviders = [];
+
+
+    /* -------------------------------------------------------
+       GET USERS
+    ------------------------------------------------------- */
+
+    if (userIds.length > 0) {
+
+      const {
+        data: users,
+        error: usersError
+      } = await supabaseClient
+        .from("users")
+        .select(
+          '"Id", "Name", "Mobile", "Email", "Location"'
+        )
+        .in("Id", userIds);
+
+
+      if (usersError) {
+
+        throw usersError;
+
+      }
+
+
+      const userMap =
+        new Map(
+          (users || []).map(user => [
+            String(user.Id),
+            user
+          ])
+        );
+
+
+      /* -----------------------------------------------------
+         MERGE USER + WORK DETAILS
+      ----------------------------------------------------- */
+
+      registeredProviders =
+        matchingWorkRows
+          .map(work => {
+
+            const user =
+              userMap.get(
+                String(work.User_id)
+              );
+
+
+            if (!user) {
+              return null;
+            }
+
+
+            return {
+
+              name:
+                user.Name ||
+                "Quick Help Provider",
+
+              service:
+                work.Work_type ||
+                service,
+
+              phone:
+                user.Mobile ||
+                "",
+
+              location:
+                work.Work_location ||
+                user.Location ||
+                "Not specified",
+
+              experience:
+                work.Experience ||
+                "Not specified",
+
+              rating:
+                "New",
+
+              status:
+                "Available",
+
+              icon:
+                getServiceIcon(
+                  work.Work_type || service
+                ),
+
+              skills:
+                work.Skill ||
+                "",
+
+              availableTime:
+                work["Available time"] ||
+                ""
+
+            };
+
+          })
+          .filter(Boolean);
+
+    }
+
+
+    /* -------------------------------------------------------
+       STATIC PROVIDERS
+    ------------------------------------------------------- */
+
+    const staticProviders =
+      providers.filter(provider => {
+
+        return String(provider.service)
+          .trim()
+          .toLowerCase() === selectedService;
+
+      });
+
+
+    /* -------------------------------------------------------
+       DATABASE PROVIDERS FIRST
+       STATIC PROVIDERS AFTER
+    ------------------------------------------------------- */
+
+    const allProviders = [
+      ...registeredProviders,
+      ...staticProviders
+    ];
+
+
+    /* -------------------------------------------------------
+       DISPLAY
+    ------------------------------------------------------- */
+
+    renderProviders(allProviders);
+
+
+  } catch (error) {
+
+    console.error(
+      "Provider loading error:",
+      error
+    );
+
+
+    /* -------------------------------------------------------
+       FALLBACK TO STATIC PROVIDERS
+    ------------------------------------------------------- */
+
+    const staticProviders =
+      providers.filter(provider => {
+
+        return String(provider.service)
+          .trim()
+          .toLowerCase() ===
+          String(service)
+            .trim()
+            .toLowerCase();
+
+      });
+
+
+    renderProviders(staticProviders);
+
+  }
 
 }
 
@@ -245,12 +583,16 @@ function openLogin() {
 
 
   if (registerModal) {
+
     registerModal.classList.remove("active");
+
   }
 
 
   if (loginModal) {
+
     loginModal.classList.add("active");
+
   }
 
 }
@@ -267,7 +609,9 @@ function closeLogin() {
 
 
   if (loginModal) {
+
     loginModal.classList.remove("active");
+
   }
 
 }
@@ -287,12 +631,16 @@ function openRegister() {
 
 
   if (loginModal) {
+
     loginModal.classList.remove("active");
+
   }
 
 
   if (registerModal) {
+
     registerModal.classList.add("active");
+
   }
 
 }
@@ -309,17 +657,16 @@ function closeRegister() {
 
 
   if (registerModal) {
+
     registerModal.classList.remove("active");
+
   }
 
 }
 
 
 /* =========================================================
-   REGISTER ACCOUNT
-   DATABASE:
-   users
-   work_details
+   REGISTER
 ========================================================= */
 
 async function handleRegister(event) {
@@ -359,7 +706,7 @@ async function handleRegister(event) {
 
 
   /* -------------------------------------------------------
-     BASIC VALIDATION
+     VALIDATION
   ------------------------------------------------------- */
 
   if (
@@ -380,6 +727,7 @@ async function handleRegister(event) {
     );
 
     return;
+
   }
 
 
@@ -411,6 +759,7 @@ async function handleRegister(event) {
       );
 
       return;
+
     }
 
 
@@ -426,11 +775,12 @@ async function handleRegister(event) {
       openLogin();
 
       return;
+
     }
 
 
     /* -----------------------------------------------------
-       INSERT USER
+       CREATE USER
     ----------------------------------------------------- */
 
     const {
@@ -476,11 +826,14 @@ async function handleRegister(event) {
       );
 
       return;
+
     }
 
 
     /* -----------------------------------------------------
-       INSERT WORK DETAILS
+       CREATE WORK DETAILS
+       IMPORTANT:
+       Work_type = CATEGORY
     ----------------------------------------------------- */
 
     const {
@@ -521,16 +874,17 @@ async function handleRegister(event) {
       );
 
       alert(
-        "Account created, but work details could not be saved."
+        "Account created, but work details could not be saved: " +
+        workError.message
       );
 
       return;
+
     }
 
 
     /* -----------------------------------------------------
-       SAVE LOCAL SESSION
-       Password is NOT saved locally
+       SAVE SESSION
     ----------------------------------------------------- */
 
     const user = {
@@ -580,10 +934,6 @@ async function handleRegister(event) {
     );
 
 
-    /* -----------------------------------------------------
-       CLOSE REGISTER
-    ----------------------------------------------------- */
-
     closeRegister();
 
 
@@ -592,7 +942,9 @@ async function handleRegister(event) {
 
 
     if (registerForm) {
+
       registerForm.reset();
+
     }
 
 
@@ -624,7 +976,6 @@ async function handleRegister(event) {
 
 /* =========================================================
    LOGIN
-   DATABASE CHECK
 ========================================================= */
 
 async function handleLogin(event) {
@@ -652,14 +1003,11 @@ async function handleLogin(event) {
     );
 
     return;
+
   }
 
 
   try {
-
-    /* -----------------------------------------------------
-       FIND USER
-    ----------------------------------------------------- */
 
     const {
       data: users,
@@ -686,6 +1034,7 @@ async function handleLogin(event) {
       );
 
       return;
+
     }
 
 
@@ -699,6 +1048,7 @@ async function handleLogin(event) {
       );
 
       return;
+
     }
 
 
@@ -740,8 +1090,7 @@ async function handleLogin(event) {
 
 
     /* -----------------------------------------------------
-       CREATE LOCAL SESSION
-       Password NOT stored
+       SAVE SESSION
     ----------------------------------------------------- */
 
     const loggedInUser = {
@@ -791,10 +1140,6 @@ async function handleLogin(event) {
     );
 
 
-    /* -----------------------------------------------------
-       CLOSE LOGIN
-    ----------------------------------------------------- */
-
     closeLogin();
 
 
@@ -803,7 +1148,9 @@ async function handleLogin(event) {
 
 
     if (loginForm) {
+
       loginForm.reset();
+
     }
 
 
@@ -919,8 +1266,7 @@ function logoutUser() {
 
 
 /* =========================================================
-   CLOSE MODALS
-   WHEN CLICKING OUTSIDE
+   CLOSE MODALS OUTSIDE CLICK
 ========================================================= */
 
 document.addEventListener(
@@ -958,7 +1304,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   ESC KEY CLOSE
+   ESC KEY
 ========================================================= */
 
 document.addEventListener(
