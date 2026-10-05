@@ -1335,3 +1335,546 @@ document.addEventListener(
 
   }
 );
+
+/* =========================================================
+   QUICK HELP - PROFILE / SETTINGS / ACCOUNT
+========================================================= */
+
+
+/* =========================================================
+   ACCOUNT MENU
+========================================================= */
+
+function openAccountMenu() {
+
+  const loggedIn =
+    localStorage.getItem("quickHelpLoggedIn") === "true";
+
+  const modal =
+    document.getElementById("accountModal");
+
+  const title =
+    document.getElementById("accountTitle");
+
+  const subtitle =
+    document.getElementById("accountSubtitle");
+
+  const logoutButton =
+    document.getElementById("logoutButton");
+
+
+  if (!modal) {
+    return;
+  }
+
+
+  if (loggedIn) {
+
+    const savedUser =
+      localStorage.getItem("quickHelpUser");
+
+
+    if (savedUser) {
+
+      try {
+
+        const user =
+          JSON.parse(savedUser);
+
+        title.textContent =
+          "Hi, " + user.name + " 👋";
+
+        subtitle.textContent =
+          "Manage your Quick Help account";
+
+      } catch (error) {
+
+        console.error(
+          "Account data error:",
+          error
+        );
+
+      }
+
+    }
+
+
+    if (logoutButton) {
+      logoutButton.style.display = "block";
+    }
+
+  } else {
+
+    title.textContent =
+      "Welcome to Quick Help";
+
+    subtitle.textContent =
+      "Login to manage your account";
+
+    if (logoutButton) {
+      logoutButton.style.display = "none";
+    }
+
+  }
+
+
+  modal.classList.add("active");
+
+}
+
+
+/* =========================================================
+   CLOSE ACCOUNT
+========================================================= */
+
+function closeAccountMenu() {
+
+  const modal =
+    document.getElementById("accountModal");
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================================================
+   ACCOUNT LOGIN
+========================================================= */
+
+function accountLogin() {
+
+  closeAccountMenu();
+
+  const loggedIn =
+    localStorage.getItem("quickHelpLoggedIn") === "true";
+
+
+  if (loggedIn) {
+    openProfile();
+  } else {
+    openLogin();
+  }
+
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+function openProfile() {
+
+  closeAccountMenu();
+  closeSettings();
+
+
+  const loggedIn =
+    localStorage.getItem("quickHelpLoggedIn") === "true";
+
+
+  if (!loggedIn) {
+
+    alert(
+      "Please login or create an account first."
+    );
+
+    openLogin();
+
+    return;
+
+  }
+
+
+  loadProfileData();
+
+
+  const modal =
+    document.getElementById("profileModal");
+
+
+  if (modal) {
+    modal.classList.add("active");
+  }
+
+}
+
+
+/* =========================================================
+   CLOSE PROFILE
+========================================================= */
+
+function closeProfile() {
+
+  const modal =
+    document.getElementById("profileModal");
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+function loadProfileData() {
+
+  const savedUser =
+    localStorage.getItem("quickHelpUser");
+
+
+  if (!savedUser) {
+    return;
+  }
+
+
+  try {
+
+    const user =
+      JSON.parse(savedUser);
+
+
+    const fields = {
+
+      profileName:
+        user.name || "-",
+
+      profileMobile:
+        user.mobile || "-",
+
+      profileEmail:
+        user.email || "-",
+
+      profileLocation:
+        user.location || "-",
+
+      profileWorkType:
+        user.workType || "-",
+
+      profileExperience:
+        user.experience || "-",
+
+      profileSkills:
+        user.skills || "-",
+
+      profileWorkLocation:
+        user.workLocation || "-",
+
+      profileAvailableTime:
+        user.availableTime || "-"
+
+    };
+
+
+    Object.keys(fields).forEach(id => {
+
+      const element =
+        document.getElementById(id);
+
+
+      if (element) {
+
+        element.textContent =
+          fields[id];
+
+      }
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Profile loading error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function openSettings() {
+
+  closeAccountMenu();
+  closeProfile();
+
+
+  const modal =
+    document.getElementById("settingsModal");
+
+
+  if (modal) {
+    modal.classList.add("active");
+  }
+
+}
+
+
+/* =========================================================
+   CLOSE SETTINGS
+========================================================= */
+
+function closeSettings() {
+
+  const modal =
+    document.getElementById("settingsModal");
+
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================================================
+   HOME
+========================================================= */
+
+function goHome() {
+
+  closeAccountMenu();
+  closeProfile();
+  closeSettings();
+  closeLogin();
+  closeRegister();
+
+
+  const home =
+    document.getElementById("homePage");
+
+
+  if (home) {
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(item => {
+
+      item.classList.remove("active");
+
+    });
+
+
+  const homeNav =
+    document.getElementById("homeNav");
+
+
+  if (homeNav) {
+    homeNav.classList.add("active");
+  }
+
+}
+
+
+/* =========================================================
+   SEARCH PROVIDERS
+========================================================= */
+
+function searchProviders() {
+
+  const input =
+    document.getElementById("providerSearch");
+
+
+  if (!input) {
+    return;
+  }
+
+
+  const search =
+    input.value
+      .trim()
+      .toLowerCase();
+
+
+  if (!search) {
+    return;
+  }
+
+
+  const matched =
+    providers.filter(provider => {
+
+      return (
+        String(provider.name)
+          .toLowerCase()
+          .includes(search) ||
+
+        String(provider.service)
+          .toLowerCase()
+          .includes(search) ||
+
+        String(provider.location)
+          .toLowerCase()
+          .includes(search)
+      );
+
+    });
+
+
+  renderProviders(matched);
+
+}
+
+
+/* =========================================================
+   SETTINGS - ABOUT
+========================================================= */
+
+function showAppInfo() {
+
+  alert(
+    "⚡ Quick Help\n\n" +
+    "Find trusted service professionals easily.\n\n" +
+    "Version: 1.0.0\n" +
+    "© 2026 Quick Help"
+  );
+
+}
+
+
+/* =========================================================
+   SETTINGS - HELP
+========================================================= */
+
+function showHelp() {
+
+  alert(
+    "❓ Quick Help Support\n\n" +
+    "1. Select a service.\n" +
+    "2. Choose a professional.\n" +
+    "3. Contact the professional directly.\n\n" +
+    "For account problems, please login again."
+  );
+
+}
+
+
+/* =========================================================
+   SETTINGS - PRIVACY
+========================================================= */
+
+function showPrivacy() {
+
+  alert(
+    "🛡️ Privacy\n\n" +
+    "Your Quick Help account information is used " +
+    "to provide the service-finder experience.\n\n" +
+    "Please do not share your password with anyone."
+  );
+
+}
+
+
+/* =========================================================
+   LOGOUT - IMPROVED
+========================================================= */
+
+function logoutUser() {
+
+  const confirmLogout =
+    confirm(
+      "Are you sure you want to logout?"
+    );
+
+
+  if (!confirmLogout) {
+    return;
+  }
+
+
+  localStorage.removeItem(
+    "quickHelpLoggedIn"
+  );
+
+
+  localStorage.removeItem(
+    "quickHelpUser"
+  );
+
+
+  closeAccountMenu();
+  closeProfile();
+  closeSettings();
+
+
+  updateLoginButton();
+
+
+  alert(
+    "You have been logged out successfully. 👋"
+  );
+
+
+  goHome();
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    const modals = [
+
+      "accountModal",
+      "profileModal",
+      "settingsModal"
+
+    ];
+
+
+    modals.forEach(id => {
+
+      const modal =
+        document.getElementById(id);
+
+
+      if (
+        modal &&
+        event.target === modal
+      ) {
+
+        modal.classList.remove("active");
+
+      }
+
+    });
+
+  }
+);
+
+
+/* =========================================================
+   UPDATE ACCOUNT UI ON LOAD
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    updateLoginButton();
+
+  }
+);
