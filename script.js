@@ -2703,3 +2703,722 @@ document.addEventListener(
 
   }
 );
+/* =========================================================
+   PROVIDER PROFILE + REVIEWS
+========================================================= */
+
+let selectedProfileProvider = null;
+
+
+/* =========================
+   OPEN PROVIDER PROFILE
+========================= */
+
+async function openProviderProfile(provider) {
+
+  selectedProfileProvider = provider;
+
+  let modal =
+    document.getElementById("providerProfileModal");
+
+  if (!modal) {
+
+    modal = document.createElement("div");
+
+    modal.id = "providerProfileModal";
+    modal.className = "app-modal";
+
+    modal.innerHTML = `
+      <div class="provider-profile-box">
+
+        <button
+          class="modal-close"
+          onclick="closeProviderProfile()">
+          ✕
+        </button>
+
+        <div id="providerProfileContent">
+          Loading...
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  modal.classList.add("active");
+
+  await loadProviderProfile(provider);
+}
+
+
+/* =========================
+   LOAD PROFILE
+========================= */
+
+async function loadProviderProfile(provider) {
+
+  const content =
+    document.getElementById(
+      "providerProfileContent"
+    );
+
+  content.innerHTML = `
+    <div class="profile-loading">
+      Loading provider profile...
+    </div>
+  `;
+
+
+  const { data: reviews, error } =
+    await supabaseClient
+      .from("reviews")
+      .select("*")
+      .eq("provider_name", provider.name)
+      .order("created_at", {
+        ascending: false
+      });
+
+
+  if (error) {
+    console.error(error);
+  }
+
+
+  const reviewList = reviews || [];
+
+
+  let average = 0;
+
+  if (reviewList.length > 0) {
+
+    average =
+      reviewList.reduce(
+        (sum, item) =>
+          sum + Number(item.rating),
+        0
+      ) / reviewList.length;
+
+  } else {
+
+    average =
+      Number(provider.rating) || 0;
+
+  }
+
+
+  const roundedAverage =
+    average
+      ? average.toFixed(1)
+      : "New";
+
+
+  content.innerHTML = `
+
+    <div class="provider-profile-header">
+
+      <div class="large-provider-avatar">
+        ${
+          provider.icon ||
+          getServiceIcon(provider.service)
+        }
+      </div>
+
+      <h2>
+        ${escapeHtml(provider.name)}
+      </h2>
+
+      <div class="profile-service">
+        ${escapeHtml(provider.service)}
+      </div>
+
+      <div class="profile-rating">
+        ⭐ ${roundedAverage}
+
+        ${
+          reviewList.length
+            ? `(${reviewList.length} reviews)`
+            : "(No reviews yet)"
+        }
+
+      </div>
+
+    </div>
+
+
+    <div class="profile-info-grid">
+
+      <div>
+        <span>📍</span>
+        <strong>Location</strong>
+        <p>
+          ${escapeHtml(
+            provider.location || "Chennai"
+          )}
+        </p>
+      </div>
+
+      <div>
+        <span>💼</span>
+        <strong>Experience</strong>
+        <p>
+          ${escapeHtml(
+            provider.experience || "-"
+          )}
+        </p>
+      </div>
+
+      <div>
+        <span>🛠️</span>
+        <strong>Skills</strong>
+        <p>
+          ${escapeHtml(
+            provider.skills || "Professional service"
+          )}
+        </p>
+      </div>
+
+      <div>
+        <span>🕒</span>
+        <strong>Available</strong>
+        <p>
+          ${escapeHtml(
+            provider.availableTime || "Contact provider"
+          )}
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="profile-action-buttons">
+
+      <button
+        class="book-now-btn"
+        onclick='closeProviderProfile(); openBooking(${JSON.stringify(provider).replace(/'/g, "&#039;")})'>
+
+        📅 Book Now
+
+      </button>
+
+      ${
+        provider.phone
+          ? `
+            <a
+              class="call-btn"
+              href="tel:${escapeHtml(provider.phone)}">
+
+              📞 Call Now
+
+            </a>
+          `
+          : ""
+      }
+
+    </div>
+
+
+    <div class="reviews-section">
+
+      <div class="reviews-title">
+
+        <h3>⭐ Reviews & Ratings</h3>
+
+        ${
+          reviewList.length
+            ? `<span>${reviewList.length} reviews</span>`
+            : ""
+        }
+
+      </div>
+
+
+      ${
+        reviewList.length === 0
+          ? `
+            <div class="no-reviews">
+              ⭐
+              <h4>No reviews yet</h4>
+              <p>Be the first to review this provider.</p>
+            </div>
+          `
+          : reviewList
+              .map(
+                item => `
+
+                  <div class="review-card">
+
+                    <div class="review-top">
+
+                      <strong>
+                        ${escapeHtml(
+                          item.reviewer_name
+                        )}
+                      </strong>
+
+                      <span>
+                        ${"⭐".repeat(
+                          Number(item.rating)
+                        )}
+                      </span>
+
+                    </div>
+
+                    ${
+                      item.review
+                        ? `
+                          <p>
+                            ${escapeHtml(
+                              item.review
+                            )}
+                          </p>
+                        `
+                        : ""
+                    }
+
+                  </div>
+
+                `
+              )
+              .join("")
+      }
+
+
+      <button
+        class="review-btn"
+        onclick="openReviewForm()">
+
+        ⭐ Write a Review
+
+      </button>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================
+   CLOSE PROFILE
+========================= */
+
+function closeProviderProfile() {
+
+  const modal =
+    document.getElementById(
+      "providerProfileModal"
+    );
+
+  if (modal) {
+    modal.classList.remove("active");
+  }
+
+}
+
+
+/* =========================
+   REVIEW FORM
+========================= */
+
+function openReviewForm() {
+
+  const loggedUser =
+    JSON.parse(
+      localStorage.getItem(
+        "quickHelpUser"
+      ) || "null"
+    );
+
+  if (!loggedUser) {
+
+    alert(
+      "Please login to write a review."
+    );
+
+    closeProviderProfile();
+
+    openLogin();
+
+    return;
+  }
+
+
+  const content =
+    document.getElementById(
+      "providerProfileContent"
+    );
+
+
+  content.innerHTML = `
+
+    <button
+      class="modal-close"
+      onclick="closeProviderProfile()">
+      ✕
+    </button>
+
+    <div class="review-form">
+
+      <div class="review-form-icon">
+        ⭐
+      </div>
+
+      <h2>Rate Your Experience</h2>
+
+      <p>
+        How was your experience with
+        <strong>
+          ${escapeHtml(
+            selectedProfileProvider.name
+          )}
+        </strong>?
+      </p>
+
+
+      <div class="star-selector">
+
+        <button onclick="selectRating(1)">★</button>
+        <button onclick="selectRating(2)">★</button>
+        <button onclick="selectRating(3)">★</button>
+        <button onclick="selectRating(4)">★</button>
+        <button onclick="selectRating(5)">★</button>
+
+      </div>
+
+
+      <input
+        type="hidden"
+        id="selectedRating"
+        value="0"
+      />
+
+
+      <textarea
+        id="reviewText"
+        rows="5"
+        placeholder="Write your review..."
+      ></textarea>
+
+
+      <button
+        class="submit-review-btn"
+        onclick="submitProviderReview()">
+
+        ⭐ Submit Review
+
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   SELECT RATING
+========================= */
+
+function selectRating(rating) {
+
+  document.getElementById(
+    "selectedRating"
+  ).value = rating;
+
+
+  const stars =
+    document.querySelectorAll(
+      ".star-selector button"
+    );
+
+
+  stars.forEach(
+    (star, index) => {
+
+      star.classList.toggle(
+        "selected",
+        index < rating
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================
+   SUBMIT REVIEW
+========================= */
+
+async function submitProviderReview() {
+
+  const loggedUser =
+    JSON.parse(
+      localStorage.getItem(
+        "quickHelpUser"
+      ) || "null"
+    );
+
+
+  const rating =
+    Number(
+      document.getElementById(
+        "selectedRating"
+      ).value
+    );
+
+
+  const review =
+    document.getElementById(
+      "reviewText"
+    ).value.trim();
+
+
+  if (rating < 1) {
+
+    alert(
+      "Please select a star rating."
+    );
+
+    return;
+  }
+
+
+  try {
+
+    const { error } =
+      await supabaseClient
+        .from("reviews")
+        .insert({
+
+          provider_user_id:
+            selectedProfileProvider.userId ||
+            null,
+
+          provider_name:
+            selectedProfileProvider.name,
+
+          service:
+            selectedProfileProvider.service,
+
+          reviewer_user_id:
+            loggedUser.id,
+
+          reviewer_name:
+            loggedUser.name,
+
+          rating:
+            rating,
+
+          review:
+            review || null
+
+        });
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Unable to submit review."
+      );
+
+      return;
+    }
+
+
+    alert(
+      "⭐ Review submitted successfully!"
+    );
+
+
+    await loadProviderProfile(
+      selectedProfileProvider
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Something went wrong."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   PROVIDER CARD - ADD PROFILE BUTTON
+========================================================= */
+
+function renderProviders(providerList) {
+
+  const providerContainer =
+    document.getElementById("providers");
+
+  const providerCount =
+    document.getElementById("providerCount");
+
+
+  if (providerCount) {
+
+    providerCount.textContent =
+      providerList.length +
+      " professionals";
+
+  }
+
+
+  if (!providerContainer) {
+    return;
+  }
+
+
+  providerContainer.innerHTML = "";
+
+
+  if (providerList.length === 0) {
+
+    providerContainer.innerHTML = `
+      <div class="provider-card">
+
+        <h3>No professionals found</h3>
+
+        <p>No professionals available.</p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  providerList.forEach(provider => {
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "provider-card";
+
+
+    card.innerHTML = `
+
+      <div class="provider-top">
+
+        <div class="provider-avatar">
+
+          ${
+            provider.icon ||
+            getServiceIcon(
+              provider.service
+            )
+          }
+
+        </div>
+
+        <div class="provider-info">
+
+          <h3>
+            ${escapeHtml(provider.name)}
+          </h3>
+
+          <div class="service-name">
+            ${escapeHtml(provider.service)}
+          </div>
+
+          <div class="rating">
+            ⭐
+            ${escapeHtml(
+              provider.rating || "New"
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="details">
+
+        <div class="detail">
+          📍
+          <strong>Location:</strong>
+          ${escapeHtml(
+            provider.location || "Chennai"
+          )}
+        </div>
+
+        <div class="detail">
+          💼
+          <strong>Experience:</strong>
+          ${escapeHtml(
+            provider.experience || "-"
+          )}
+        </div>
+
+        ${
+          provider.skills
+            ? `
+              <div class="detail">
+                🛠️
+                <strong>Skills:</strong>
+                ${escapeHtml(
+                  provider.skills
+                )}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          provider.availableTime
+            ? `
+              <div class="detail">
+                🕒
+                <strong>Available:</strong>
+                ${escapeHtml(
+                  provider.availableTime
+                )}
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+
+      <div class="provider-actions">
+
+        <button
+          class="profile-view-btn"
+          onclick='openProviderProfile(${JSON.stringify(provider).replace(/'/g, "&#039;")})'>
+
+          👤 View Profile
+
+        </button>
+
+
+        <button
+          class="book-now-btn"
+          onclick='openBooking(${JSON.stringify(provider).replace(/'/g, "&#039;")})'>
+
+          📅 Book Now
+
+        </button>
+
+      </div>
+
+    `;
+
+
+    providerContainer.appendChild(card);
+
+  });
+
+}
