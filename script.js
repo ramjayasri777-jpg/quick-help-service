@@ -2,10 +2,17 @@
    SUPABASE CONNECTION
 ========================================================= */
 
-const SUPABASE_URL "NEXT_PUBLIC_SUPABASE_URL=https://mkfmwmbiylvyixjlmcba.supabase.co";
+const SUPABASE_URL =
+  "https://mkfmwmbiylvyixjlmcba.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "YOUR_PUBLISHABLE_KEY_HERE=sb_publishable_c7E2D-jjrLFzLwIB_sfahg_WROFByrn"
+  "sb_publishable_c7E2D-jjrLFzLwIB_sfahg_WROFByrn";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
 const supabaseClient =
