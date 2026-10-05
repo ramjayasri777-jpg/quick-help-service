@@ -1,8 +1,8 @@
 const providers = [
   {
-    name: "Ramesh Kumar",
+    name: "ishwarya",
     service: "Plumber",
-    phone: "9876543210",
+    phone: "9600413842",
     location: "Chennai",
     experience: "8 Years",
     rating: "4.8",
