@@ -1,11 +1,26 @@
-const SUPABASE_URL = "NEXT_PUBLIC_SUPABASE_URL=https://mkfmwmbiylvyixjlmcba.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_c7E2D-jjrLFzLwIB_sfahg_WROFByrn";
+/* =========================================================
+   SUPABASE CONNECTION
+========================================================= */
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+const SUPABASE_URL "NEXT_PUBLIC_SUPABASE_URL=https://mkfmwmbiylvyixjlmcba.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "YOUR_PUBLISHABLE_KEY_HERE=sb_publishable_c7E2D-jjrLFzLwIB_sfahg_WROFByrn"
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================================================
+   PROVIDERS
+========================================================= */
+
 const providers = [
+
   {
     name: "ishwarya",
     service: "Plumber",
@@ -16,6 +31,7 @@ const providers = [
     status: "Available",
     icon: "🔧"
   },
+
   {
     name: "Suresh Kumar",
     service: "Plumber",
@@ -26,6 +42,7 @@ const providers = [
     status: "Available",
     icon: "🔧"
   },
+
   {
     name: "Arun Electricals",
     service: "Electrician",
@@ -36,6 +53,7 @@ const providers = [
     status: "Available",
     icon: "⚡"
   },
+
   {
     name: "Vijay Electric Works",
     service: "Electrician",
@@ -46,6 +64,7 @@ const providers = [
     status: "Available",
     icon: "⚡"
   },
+
   {
     name: "Mohan Carpenter",
     service: "Carpenter",
@@ -56,6 +75,7 @@ const providers = [
     status: "Available",
     icon: "🪚"
   },
+
   {
     name: "Karthik Wood Works",
     service: "Carpenter",
@@ -66,6 +86,7 @@ const providers = [
     status: "Available",
     icon: "🪚"
   },
+
   {
     name: "Mani Painters",
     service: "Painter",
@@ -76,6 +97,7 @@ const providers = [
     status: "Available",
     icon: "🎨"
   },
+
   {
     name: "Prakash Painting Works",
     service: "Painter",
@@ -86,12 +108,13 @@ const providers = [
     status: "Available",
     icon: "🎨"
   }
+
 ];
 
 
-/* =========================
+/* =========================================================
    SHOW PROVIDERS
-========================= */
+========================================================= */
 
 function showProviders(service) {
 
@@ -104,29 +127,52 @@ function showProviders(service) {
   const providerCount =
     document.getElementById("providerCount");
 
-  const filteredProviders = providers.filter(
-    provider => provider.service === service
-  );
 
-  serviceTitle.textContent = service + "s";
+  const filteredProviders =
+    providers.filter(
+      provider => provider.service === service
+    );
 
-  providerCount.textContent =
-    filteredProviders.length + " professionals";
+
+  if (serviceTitle) {
+    serviceTitle.textContent =
+      service + "s";
+  }
+
+
+  if (providerCount) {
+    providerCount.textContent =
+      filteredProviders.length +
+      " professionals";
+  }
+
+
+  if (!providerContainer) {
+    return;
+  }
+
 
   providerContainer.innerHTML = "";
 
+
   filteredProviders.forEach(provider => {
 
-    const card = document.createElement("div");
+    const card =
+      document.createElement("div");
 
-    card.className = "provider-card";
+
+    card.className =
+      "provider-card";
+
 
     const statusClass =
       provider.status === "Available"
         ? "available"
         : "busy";
 
+
     card.innerHTML = `
+
       <div class="provider-top">
 
         <div class="provider-avatar">
@@ -149,6 +195,7 @@ function showProviders(service) {
 
       </div>
 
+
       <div class="details">
 
         <div class="detail">
@@ -167,23 +214,27 @@ function showProviders(service) {
 
       </div>
 
+
       <a
         class="call-btn"
         href="tel:${provider.phone}"
       >
         📞 Call Now
       </a>
+
     `;
+
 
     providerContainer.appendChild(card);
 
   });
+
 }
 
 
-/* =========================
+/* =========================================================
    LOGIN MODAL
-========================= */
+========================================================= */
 
 function openLogin() {
 
@@ -193,30 +244,39 @@ function openLogin() {
   const registerModal =
     document.getElementById("registerModal");
 
-  registerModal.classList.remove("active");
 
-  loginModal.classList.add("active");
+  if (registerModal) {
+    registerModal.classList.remove("active");
+  }
+
+
+  if (loginModal) {
+    loginModal.classList.add("active");
+  }
 
 }
 
 
-/* =========================
+/* =========================================================
    CLOSE LOGIN
-========================= */
+========================================================= */
 
 function closeLogin() {
 
   const loginModal =
     document.getElementById("loginModal");
 
-  loginModal.classList.remove("active");
+
+  if (loginModal) {
+    loginModal.classList.remove("active");
+  }
 
 }
 
 
-/* =========================
+/* =========================================================
    OPEN REGISTER
-========================= */
+========================================================= */
 
 function openRegister() {
 
@@ -226,34 +286,47 @@ function openRegister() {
   const registerModal =
     document.getElementById("registerModal");
 
-  loginModal.classList.remove("active");
 
-  registerModal.classList.add("active");
+  if (loginModal) {
+    loginModal.classList.remove("active");
+  }
+
+
+  if (registerModal) {
+    registerModal.classList.add("active");
+  }
 
 }
 
 
-/* =========================
+/* =========================================================
    CLOSE REGISTER
-========================= */
+========================================================= */
 
 function closeRegister() {
 
   const registerModal =
     document.getElementById("registerModal");
 
-  registerModal.classList.remove("active");
+
+  if (registerModal) {
+    registerModal.classList.remove("active");
+  }
 
 }
 
 
-/* =========================
+/* =========================================================
    REGISTER ACCOUNT
-========================= */
+   DATABASE:
+   users
+   work_details
+========================================================= */
 
-function handleRegister(event) {
+async function handleRegister(event) {
 
   event.preventDefault();
+
 
   const name =
     document.getElementById("userName").value.trim();
@@ -286,17 +359,66 @@ function handleRegister(event) {
     document.getElementById("availableTime").value;
 
 
-  /* Check existing account */
+  /* -------------------------------------------------------
+     BASIC VALIDATION
+  ------------------------------------------------------- */
 
-  const existingUser =
-    localStorage.getItem("quickHelpUser");
+  if (
+    !name ||
+    !mobile ||
+    !email ||
+    !password ||
+    !location ||
+    !workType ||
+    !experience ||
+    !skills ||
+    !workLocation ||
+    !availableTime
+  ) {
 
-  if (existingUser) {
+    alert(
+      "Please fill all required fields."
+    );
 
-    const oldUser =
-      JSON.parse(existingUser);
+    return;
+  }
 
-    if (oldUser.mobile === mobile) {
+
+  try {
+
+    /* -----------------------------------------------------
+       CHECK EXISTING MOBILE
+    ----------------------------------------------------- */
+
+    const {
+      data: existingUsers,
+      error: checkError
+    } = await supabaseClient
+      .from("users")
+      .select('"Id"')
+      .eq("Mobile", mobile)
+      .limit(1);
+
+
+    if (checkError) {
+
+      console.error(
+        "Check user error:",
+        checkError
+      );
+
+      alert(
+        "Unable to check account. Please try again."
+      );
+
+      return;
+    }
+
+
+    if (
+      existingUsers &&
+      existingUsers.length > 0
+    ) {
 
       alert(
         "An account with this mobile number already exists. Please login."
@@ -306,111 +428,152 @@ function handleRegister(event) {
 
       return;
     }
-  }
 
 
-  /* Create user */
+    /* -----------------------------------------------------
+       INSERT USER
+    ----------------------------------------------------- */
 
-  const user = {
+    const {
+      data: newUser,
+      error: userError
+    } = await supabaseClient
+      .from("users")
+      .insert({
 
-    name: name,
+        "Created_at":
+          new Date().toISOString(),
 
-    mobile: mobile,
+        "Name":
+          name,
 
-    email: email,
+        "Mobile":
+          mobile,
 
-    password: password,
+        "Email":
+          email,
 
-    location: location,
+        "Password":
+          password,
 
-    workType: workType,
+        "Location":
+          location
 
-    experience: experience,
-
-    skills: skills,
-
-    workLocation: workLocation,
-
-    availableTime: availableTime,
-
-    createdAt: new Date().toISOString()
-
-  };
-
-
-  /* Save account */
-
-  localStorage.setItem(
-    "quickHelpUser",
-    JSON.stringify(user)
-  );
+      })
+      .select('"Id"')
+      .single();
 
 
-  /* Save login session */
+    if (userError) {
 
-  localStorage.setItem(
-    "quickHelpLoggedIn",
-    "true"
-  );
+      console.error(
+        "User insert error:",
+        userError
+      );
 
+      alert(
+        "Account creation failed: " +
+        userError.message
+      );
 
-  closeRegister();
-
-
-  document.getElementById("registerForm").reset();
-
-
-  alert(
-    "Account created successfully! Welcome to Quick Help, " +
-    name +
-    " 🎉"
-  );
+      return;
+    }
 
 
-  updateLoginButton();
+    /* -----------------------------------------------------
+       INSERT WORK DETAILS
+    ----------------------------------------------------- */
 
-}
+    const {
+      error: workError
+    } = await supabaseClient
+      .from("work_details")
+      .insert({
+
+        "created_at":
+          new Date().toISOString(),
+
+        "User_id":
+          newUser.Id,
+
+        "Work_type":
+          workType,
+
+        "Experience":
+          experience,
+
+        "Skill":
+          skills,
+
+        "Work_location":
+          workLocation,
+
+        "Available time":
+          availableTime
+
+      });
 
 
-/* =========================
-   LOGIN
-========================= */
+    if (workError) {
 
-function handleLogin(event) {
+      console.error(
+        "Work details error:",
+        workError
+      );
 
-  event.preventDefault();
+      alert(
+        "Account created, but work details could not be saved."
+      );
 
-  const mobile =
-    document.getElementById("loginMobile").value.trim();
-
-  const password =
-    document.getElementById("loginPassword").value;
-
-
-  const savedUser =
-    localStorage.getItem("quickHelpUser");
+      return;
+    }
 
 
-  if (!savedUser) {
+    /* -----------------------------------------------------
+       SAVE LOCAL SESSION
+       Password is NOT saved locally
+    ----------------------------------------------------- */
 
-    alert(
-      "No account found. Please create a new account first."
+    const user = {
+
+      id:
+        newUser.Id,
+
+      name:
+        name,
+
+      mobile:
+        mobile,
+
+      email:
+        email,
+
+      location:
+        location,
+
+      workType:
+        workType,
+
+      experience:
+        experience,
+
+      skills:
+        skills,
+
+      workLocation:
+        workLocation,
+
+      availableTime:
+        availableTime
+
+    };
+
+
+    localStorage.setItem(
+      "quickHelpUser",
+      JSON.stringify(user)
     );
 
-    openRegister();
-
-    return;
-  }
-
-
-  const user =
-    JSON.parse(savedUser);
-
-
-  if (
-    user.mobile === mobile &&
-    user.password === password
-  ) {
 
     localStorage.setItem(
       "quickHelpLoggedIn",
@@ -418,25 +581,41 @@ function handleLogin(event) {
     );
 
 
-    closeLogin();
+    /* -----------------------------------------------------
+       CLOSE REGISTER
+    ----------------------------------------------------- */
+
+    closeRegister();
 
 
-    document.getElementById("loginForm").reset();
+    const registerForm =
+      document.getElementById("registerForm");
+
+
+    if (registerForm) {
+      registerForm.reset();
+    }
 
 
     alert(
-      "Login successful! Welcome back, " +
-      user.name +
-      " 👋"
+      "Account created successfully! Welcome to Quick Help, " +
+      name +
+      " 🎉"
     );
 
 
     updateLoginButton();
 
-  } else {
+
+  } catch (error) {
+
+    console.error(
+      "Registration error:",
+      error
+    );
 
     alert(
-      "Incorrect mobile number or password."
+      "Something went wrong. Please try again."
     );
 
   }
@@ -444,20 +623,237 @@ function handleLogin(event) {
 }
 
 
-/* =========================
+/* =========================================================
+   LOGIN
+   DATABASE CHECK
+========================================================= */
+
+async function handleLogin(event) {
+
+  event.preventDefault();
+
+
+  const mobile =
+    document
+      .getElementById("loginMobile")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("loginPassword")
+      .value;
+
+
+  if (!mobile || !password) {
+
+    alert(
+      "Please enter mobile number and password."
+    );
+
+    return;
+  }
+
+
+  try {
+
+    /* -----------------------------------------------------
+       FIND USER
+    ----------------------------------------------------- */
+
+    const {
+      data: users,
+      error: loginError
+    } = await supabaseClient
+      .from("users")
+      .select(
+        '"Id", "Name", "Mobile", "Email", "Password", "Location"'
+      )
+      .eq("Mobile", mobile)
+      .eq("Password", password)
+      .limit(1);
+
+
+    if (loginError) {
+
+      console.error(
+        "Login error:",
+        loginError
+      );
+
+      alert(
+        "Unable to login. Please try again."
+      );
+
+      return;
+    }
+
+
+    if (
+      !users ||
+      users.length === 0
+    ) {
+
+      alert(
+        "Incorrect mobile number or password."
+      );
+
+      return;
+    }
+
+
+    const user =
+      users[0];
+
+
+    /* -----------------------------------------------------
+       GET WORK DETAILS
+    ----------------------------------------------------- */
+
+    const {
+      data: workDetails,
+      error: workError
+    } = await supabaseClient
+      .from("work_details")
+      .select(
+        '"User_id", "Work_type", "Experience", "Skill", "Work_location", "Available time"'
+      )
+      .eq("User_id", user.Id)
+      .limit(1);
+
+
+    if (workError) {
+
+      console.error(
+        "Work details fetch error:",
+        workError
+      );
+
+    }
+
+
+    const work =
+      workDetails &&
+      workDetails.length > 0
+        ? workDetails[0]
+        : {};
+
+
+    /* -----------------------------------------------------
+       CREATE LOCAL SESSION
+       Password NOT stored
+    ----------------------------------------------------- */
+
+    const loggedInUser = {
+
+      id:
+        user.Id,
+
+      name:
+        user.Name,
+
+      mobile:
+        user.Mobile,
+
+      email:
+        user.Email,
+
+      location:
+        user.Location,
+
+      workType:
+        work.Work_type || "",
+
+      experience:
+        work.Experience || "",
+
+      skills:
+        work.Skill || "",
+
+      workLocation:
+        work.Work_location || "",
+
+      availableTime:
+        work["Available time"] || ""
+
+    };
+
+
+    localStorage.setItem(
+      "quickHelpUser",
+      JSON.stringify(loggedInUser)
+    );
+
+
+    localStorage.setItem(
+      "quickHelpLoggedIn",
+      "true"
+    );
+
+
+    /* -----------------------------------------------------
+       CLOSE LOGIN
+    ----------------------------------------------------- */
+
+    closeLogin();
+
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+
+    if (loginForm) {
+      loginForm.reset();
+    }
+
+
+    alert(
+      "Login successful! Welcome back, " +
+      user.Name +
+      " 👋"
+    );
+
+
+    updateLoginButton();
+
+
+  } catch (error) {
+
+    console.error(
+      "Login error:",
+      error
+    );
+
+    alert(
+      "Something went wrong. Please try again."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
    UPDATE LOGIN BUTTON
-========================= */
+========================================================= */
 
 function updateLoginButton() {
 
   const loginButton =
     document.querySelector(".login-btn");
 
+
   const savedUser =
-    localStorage.getItem("quickHelpUser");
+    localStorage.getItem(
+      "quickHelpUser"
+    );
+
 
   const loggedIn =
-    localStorage.getItem("quickHelpLoggedIn");
+    localStorage.getItem(
+      "quickHelpLoggedIn"
+    );
 
 
   if (
@@ -466,11 +862,26 @@ function updateLoginButton() {
     loggedIn === "true"
   ) {
 
-    const user =
-      JSON.parse(savedUser);
+    try {
 
-    loginButton.textContent =
-      "👤 " + user.name;
+      const user =
+        JSON.parse(savedUser);
+
+
+      loginButton.textContent =
+        "👤 " + user.name;
+
+    } catch (error) {
+
+      console.error(
+        "Session read error:",
+        error
+      );
+
+      loginButton.textContent =
+        "👤 Login / Register";
+
+    }
 
   } else if (loginButton) {
 
@@ -482,9 +893,9 @@ function updateLoginButton() {
 }
 
 
-/* =========================
+/* =========================================================
    LOGOUT
-========================= */
+========================================================= */
 
 function logoutUser() {
 
@@ -492,17 +903,26 @@ function logoutUser() {
     "quickHelpLoggedIn"
   );
 
+
+  localStorage.removeItem(
+    "quickHelpUser"
+  );
+
+
   updateLoginButton();
 
-  alert("You have been logged out.");
+
+  alert(
+    "You have been logged out."
+  );
 
 }
 
 
-/* =========================
+/* =========================================================
    CLOSE MODALS
    WHEN CLICKING OUTSIDE
-========================= */
+========================================================= */
 
 document.addEventListener(
   "click",
@@ -516,6 +936,7 @@ document.addEventListener(
 
 
     if (
+      loginModal &&
       event.target === loginModal
     ) {
 
@@ -525,6 +946,7 @@ document.addEventListener(
 
 
     if (
+      registerModal &&
       event.target === registerModal
     ) {
 
@@ -536,9 +958,9 @@ document.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    ESC KEY CLOSE
-========================= */
+========================================================= */
 
 document.addEventListener(
   "keydown",
@@ -556,9 +978,9 @@ document.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    PAGE LOAD
-========================= */
+========================================================= */
 
 document.addEventListener(
   "DOMContentLoaded",
