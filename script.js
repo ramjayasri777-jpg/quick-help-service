@@ -1029,24 +1029,23 @@ const { data: newUser, error: userError } =
         .select()
         .single();
 
-    if (userInsert.error) {
+    if (userError) {
 
       console.error(
         "User registration error:",
-        userInsert.error
+       userError 
       );
 
       showMessage(
         "Registration failed: " +
-        userInsert.error.message
+        userError.message
       );
 
       return;
     }
 
 
-    const newUser =
-      userInsert.data;
+   
 
 
     /*
