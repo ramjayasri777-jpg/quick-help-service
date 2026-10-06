@@ -1015,18 +1015,17 @@ async function handleRegister(event) {
       Insert user.
     */
 
-    const userInsert =
-      await supabaseClient
+    const { data: newUser, error: userError } =
+    await supabaseClient
         .from("users")
-        .insert([
-          {
+        .insert([{
+            Created_at: new Date().toISOString(),
             Name: name,
             Mobile: mobile,
             Email: email,
             Password: password,
             Location: location
-          }
-        ])
+        }])
         .select()
         .single();
 
