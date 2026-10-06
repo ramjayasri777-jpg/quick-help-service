@@ -1129,13 +1129,17 @@ const { data: newUser, error: userError } =
       newUser;
 
 
-    currentUser.workDetails = {
-      Work_type: workType,
-      Experience: experience,
-      Skill: skills,
-      Work_location: workLocation,
-      "Available time": availableTime
-    };
+    if (accountType === "provider") {
+
+  currentUser.workDetails = {
+    Work_type: workType,
+    Experience: experience,
+    Skill: skills,
+    Work_location: workLocation,
+    "Available time": availableTime
+  };
+
+    }
 
 
     saveCurrentUser(
