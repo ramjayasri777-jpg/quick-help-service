@@ -1118,7 +1118,7 @@ const { data: newUser, error: userError } =
 
     }
 
-    }
+
 
 
     /*
