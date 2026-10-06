@@ -1067,48 +1067,56 @@ const { data: newUser, error: userError } =
    
 
 
-    /*
-      Insert work details.
+        /*
+      Insert work details only for Service Providers.
     */
 
-    const workInsert =
-      await supabaseClient
-        .from("work_details")
-        .insert([
-          {
-            User_id: newUser.Id,
-            Work_type: workType,
-            Experience: experience,
-            Skill: skills,
-            Work_location: workLocation,
-            "Available time": availableTime
-          }
-        ]);
+    let workInsert = {
+      error: null
+    };
 
+    if (accountType === "provider") {
 
-    if (workInsert.error) {
+      workInsert =
+        await supabaseClient
+          .from("work_details")
+          .insert([
+            {
+              User_id: newUser.Id,
+              Work_type: workType,
+              Experience: experience,
+              Skill: skills,
+              Work_location: workLocation,
+              "Available time": availableTime
+            }
+          ]);
 
-      console.error(
-        "Work details registration error:",
-        workInsert.error
-      );
+      if (workInsert.error) {
 
+        console.error(
+          "Work details registration error:",
+          workInsert.error
+        );
 
-      /*
-        User was created but work details failed.
-        Keep user account because it can be repaired
-        later from provider profile/dashboard.
-      */
+        showMessage(
+          "Account created, but work details could not be saved."
+        );
 
-      showMessage(
-        "Account created, but work details could not be saved."
-      );
+      } else {
+
+        showMessage(
+          "Service Provider account created successfully!"
+        );
+
+      }
 
     } else {
 
       showMessage(
-        "Account created successfully!"
+        "Customer account created successfully!"
       );
+
+    }
 
     }
 
