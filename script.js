@@ -904,12 +904,30 @@ async function handleRegister(event) {
     $("availableTime")?.value || "";
 
 
+  const accountType =
+  $("accountType")?.value || "";
+
+if (
+  !name ||
+  !mobile ||
+  !email ||
+  !password ||
+  !location ||
+  !accountType
+) {
+
+  showMessage(
+    "Please fill all required details."
+  );
+
+  return;
+}
+
+
+// Service Provider-ku mattum work details required
+if (accountType === "provider") {
+
   if (
-    !name ||
-    !mobile ||
-    !email ||
-    !password ||
-    !location ||
     !workType ||
     !experience ||
     !skills ||
@@ -918,11 +936,12 @@ async function handleRegister(event) {
   ) {
 
     showMessage(
-      "Please fill all required details."
+      "Please fill all service provider details."
     );
 
     return;
   }
+}
 
 
   if (!supabaseClient) {
@@ -931,8 +950,8 @@ async function handleRegister(event) {
       "Supabase is not connected. Please check script.js configuration."
     );
 
-    return;
-  }
+    return
+     
 
 
   try {
