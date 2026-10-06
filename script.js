@@ -946,15 +946,15 @@ if (accountType === "provider") {
 
   if (!supabaseClient) {
 
-    showMessage(
-      "Supabase is not connected. Please check script.js configuration."
-    );
+  showMessage(
+    "Supabase is not connected. Please check script.js configuration."
+  );
 
-    return
-     
+  return;
+}
 
 
-  try {
+try {
 
     /*
       Check existing mobile.
