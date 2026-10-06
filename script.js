@@ -1015,7 +1015,7 @@ async function handleRegister(event) {
       Insert user.
     */
 
-    const { data: newUser, error: userError } =
+const { data: newUser, error: userError } =
     await supabaseClient
         .from("users")
         .insert([{
@@ -1028,7 +1028,6 @@ async function handleRegister(event) {
         }])
         .select()
         .single();
-
 
     if (userInsert.error) {
 
