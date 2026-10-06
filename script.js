@@ -6620,3 +6620,81 @@ if (document.readyState === "loading") {
 // =====================================================
 // END OF SCRIPT.JS
 // =====================================================
+// ==========================================
+// CUSTOMER / PROVIDER WORK DETAILS TOGGLE
+// ==========================================
+
+function toggleWorkDetails() {
+
+    const accountType = document.getElementById("accountType");
+
+    if (!accountType) return;
+
+    const workType = document.getElementById("workType");
+
+    if (!workType) return;
+
+    // Find the complete Work Details section
+    const heading = workType
+        .closest(".input-group")
+        ?.previousElementSibling;
+
+    const workFields = [
+        workType,
+        document.getElementById("experience"),
+        document.getElementById("skills"),
+        document.getElementById("workLocation"),
+        document.getElementById("availableTime")
+    ];
+
+    if (accountType.value === "customer") {
+
+        // Hide provider fields
+        workFields.forEach(function (field) {
+
+            if (field) {
+                const group = field.closest(".input-group");
+
+                if (group) {
+                    group.style.display = "none";
+                }
+
+                field.required = false;
+            }
+
+        });
+
+        // Hide Work Details heading
+        if (
+            heading &&
+            heading.classList.contains("form-heading")
+        ) {
+            heading.style.display = "none";
+        }
+
+    } else if (accountType.value === "provider") {
+
+        // Show provider fields
+        workFields.forEach(function (field) {
+
+            if (field) {
+                const group = field.closest(".input-group");
+
+                if (group) {
+                    group.style.display = "";
+                }
+
+                field.required = true;
+            }
+
+        });
+
+        // Show Work Details heading
+        if (
+            heading &&
+            heading.classList.contains("form-heading")
+        ) {
+            heading.style.display = "";
+        }
+    }
+}
