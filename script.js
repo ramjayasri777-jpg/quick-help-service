@@ -6729,3 +6729,12 @@ function toggleWorkDetails() {
         }
     }
 }
+document.addEventListener("input", function (e) {
+    if (e.target.matches('input[type="number"]')) {
+        if (e.target.value !== "" && Number(e.target.value) < 10) {
+            e.target.setCustomValidity("Error: Enter 10 or above!");
+        } else {
+            e.target.setCustomValidity("");
+        }
+    }
+});
